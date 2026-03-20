@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hive-Pod | Next Level Mobility</title>
+    <style>
+        /* Apple-Style Reset & Fonts */
+        body, html {
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background-color: #000000; color: #ffffff;
+            overflow-x: hidden; scroll-behavior: smooth;
+        }
+        
+        :root { --hive-blue: #00d2ff; }
+
+        /* Navigation / Sticky Header */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 100; display: flex; justify-content: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        header img { height: 35px; }
+
+        /* Fullscreen Slide Sections */
+        .slide {
+            height: 100vh; width: 100vw;
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+            padding-bottom: 12vh; text-align: center; box-sizing: border-box;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            position: relative;
+        }
+        
+        .slide::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+            z-index: 1;
+        }
+
+        .slide-content { position: relative; z-index: 2; padding: 0 20px; max-width: 600px; }
+
+        .slide h2 { font-size: 2.8rem; font-weight: 700; margin: 0 0 10px 0; letter-spacing: -1px; line-height: 1.1; }
+        .slide p { font-size: 1.2rem; color: #a1a1a6; margin: 0 0 30px 0; line-height: 1.5; }
+
+        /* Info Section (Wie es funktioniert) */
+        .info-section {
+            background-color: #050505; padding: 80px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .info-section h2 { font-size: 2.2rem; margin-bottom: 20px; }
+        .info-section > p { max-width: 700px; color: #a1a1a6; font-size: 1.1rem; line-height: 1.6; margin-bottom: 50px; }
+        
+        .features-grid {
+            display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 800px; width: 100%;
+        }
+        @media(min-width: 768px) { .features-grid { grid-template-columns: 1fr 1fr; gap: 30px; } }
+        
+        .feature-box {
+            background-color: #111; border-radius: 20px; padding: 30px; text-align: left;
+            border: 1px solid #222; position: relative; overflow: hidden;
+        }
+        .feature-box h3 { color: var(--hive-blue); font-size: 1.3rem; margin-top: 0; margin-bottom: 10px; }
+        .feature-box p { color: #ccc; font-size: 0.95rem; line-height: 1.5; margin: 0; }
+
+        /* Scroll Animation Classes */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Buttons */
+        .btn {
+            background-color: #ffffff; color: #000000; border: none; padding: 16px 32px;
+            font-size: 1.1rem; font-weight: 600; border-radius: 30px; cursor: pointer;
+            transition: all 0.3s ease; width: 100%; max-width: 300px; margin-top: 10px; display: inline-block; text-decoration: none;
+        }
+        .btn-blue { background-color: var(--hive-blue); color: #000; }
+        .btn:active { transform: scale(0.96); }
+
+        /* Pricing Section */
+        #pricing { height: auto; min-height: 100vh; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 100px 20px 50px 20px; }
+        
+        .pricing-grid {
+            display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 800px; width: 100%;
+        }
+        @media(min-width: 768px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+
+        .price-card {
+            background-color: #111111; border: 1px solid #333; border-radius: 20px;
+            padding: 30px 20px; text-align: left; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .price-card.featured { border-color: var(--hive-blue); background: linear-gradient(180deg, #111 0%, #001a22 100%); }
+        .price-card h3 { font-size: 1.5rem; margin-top: 0; margin-bottom: 5px; }
+        .price-card .price { font-size: 2.2rem; font-weight: 700; color: var(--hive-blue); margin: 10px 0; }
+        .price-card ul { color: #888; padding-left: 20px; margin-bottom: 25px; font-size: 0.95rem; line-height: 1.5; }
+
+        /* Modal (Fake Door) */
+        .modal {
+            display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9); justify-content: center; align-items: flex-end;
+        }
+        .modal-content {
+            background-color: #1c1c1e; width: 100%; max-width: 600px; border-radius: 25px 25px 0 0;
+            padding: 40px 25px; box-sizing: border-box; text-align: center;
+            animation: slideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1); margin: 0 auto;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal input {
+            width: 100%; padding: 16px; margin: 20px 0; border-radius: 12px;
+            border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; box-sizing: border-box;
+        }
+        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; color: #888; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Header -->
+    <header>
+        <img src="logo.png" alt="Hive-Pod Logo">
+    </header>
+
+    <!-- Slide 1: Vorort / Einstieg -->
+    <section class="slide" style="background-image: url('HP1.jpg');">
+        <div class="slide-content reveal">
+            <h2>Null Kleingedrucktes.</h2>
+            <p>Dein biometrischer Mobility-Pod für den Speckgürtel. Einsteigen, losfahren, frei sein.</p>
+            <a href="#about" class="btn">Konzept entdecken</a>
+        </div>
+    </section>
+
+    <!-- NEUE INFO-SEKTION: Wie es funktioniert -->
+    <section class="info-section" id="about">
+        <div class="reveal">
+            <h2>Die Hive-Architektur.</h2>
+            <p>Jeden Morgen Stau auf der B2, eine unzuverlässige S-Bahn und beim Carsharing die ständige Angst vor versteckten Schadenskosten? Wir haben Mobilität für Pendler radikal neu gedacht, um genau dieses Problem zu lösen.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-box reveal">
+                <h3>01. Biometrie statt Bürokratie</h3>
+                <p>Vergiss Übergabeprotokolle und Apps. Der Pod erkennt dein Gangbild und deine Iris. Die unzerstörbare Polymer-Außenhaut macht Kratzer physikalisch unmöglich. Einsteigen ist dein einziger Vertrag.</p>
+            </div>
+            <div class="feature-box reveal">
+                <h3>02. Smart Space Interior</h3>
+                <p>Der Memory-Sitz formt sich in Sekunden passend zu deiner Körpergröße. Sensoren erkennen deine Ausrüstung – egal ob Aktenkoffer, Sporttasche oder Golfbag – und passen den Kofferraum dynamisch an.</p>
+            </div>
+            <div class="feature-box reveal">
+                <h3>03. Die Schwarmintelligenz</h3>
+                <p>Auf Strecken wie der A14 loggt sich dein Pod in den 'Hive' ein. Die Fahrzeuge koppeln sich digital zu Hochgeschwindigkeits-Konvois. Das bedeutet 0 % Unfallrisiko und damit null Haftung für dich.</p>
+            </div>
+            <div class="feature-box reveal">
+                <h3>04. Der Leipzig City-Loop</h3>
+                <p>Schluss mit Parkplatzsuche. In Ballungszentren fährt der Hive auf einem aufgeständerten, exklusiven Podway-Netzwerk. Du gleitest über den regulären Verkehr hinweg direkt ans Ziel.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: Autobahn / Schwarm -->
+    <section class="slide" style="background-image: url('HP2.jpg');">
+        <div class="slide-content reveal">
+            <h2>High-Speed Konvois.</h2>
+            <p>Digital gekoppelt auf der Schnellstraße. Maximale Effizienz, null Stress.</p>
+        </div>
+    </section>
+
+    <!-- Slide 3: Innenstadt / Podway -->
+    <section class="slide" style="background-image: url('HP3.jpg');">
+        <div class="slide-content reveal">
+            <h2>Über dem Stau.</h2>
+            <p>Das City-Loop-Netzwerk in Leipzig. Direkte Anbindung ohne Ampeln.</p>
+        </div>
+    </section>
+
+    <!-- Kaufoptionen / Fake Door -->
+    <section id="pricing">
+        <div class="reveal" style="text-align: center; margin-bottom: 40px;">
+            <h2 style="font-size: 2.2rem; margin-bottom: 10px;">Wähle deine Freiheit.</h2>
+            <p style="color: #a1a1a6;">Drei transparente Wege in das Hive-Netzwerk.</p>
+        </div>
+        
+        <div class="pricing-grid reveal">
+            <div class="price-card">
+                <div>
+                    <h3>Monatsabo</h3>
+                    <div class="price">299 €<span style="font-size: 1rem; color:#888;"> / mtl.</span></div>
+                    <ul><li>Jederzeit kündbar per Klick</li><li>Wartung & Reinigung inklusive</li></ul>
+                </div>
+                <button class="btn open-modal" data-plan="Abo">Auswählen</button>
+            </div>
+
+            <div class="price-card featured">
+                <div>
+                    <h3>Teilhaberschaft</h3>
+                    <div class="price">89 €<span style="font-size: 1rem; color:#888;"> / mtl.</span></div>
+                    <ul><li>Teile den Pod mit 3 Nachbarn</li><li>Feste Station in deiner Straße</li></ul>
+                </div>
+                <button class="btn btn-blue open-modal" data-plan="Teilhaberschaft">Auswählen</button>
+            </div>
+
+            <div class="price-card">
+                <div>
+                    <h3>Eigentum</h3>
+                    <div class="price">39.000 €</div>
+                    <ul><li>100 % dein Hive-Pod</li><li>Zugang zum City-Loop inklusive</li></ul>
+                </div>
+                <button class="btn open-modal" data-plan="Eigentum">Auswählen</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Das Fake Door Pop-up -->
+    <div id="fakeDoorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">✕</span>
+            <h2 style="color: var(--hive-blue); margin-top: 0;">Erwischt! 😉</h2>
+            <p style="font-size: 0.95rem; color: #ccc;">Das ist unser Prototyp für die DHSN Glauchau. Den Hive-Pod gibt es noch nicht.</p>
+            <p style="font-weight: bold;">Da du auf <span id="planName" style="color: var(--hive-blue);"></span> geklickt hast: Was war dein Hauptgrund?</p>
+            <input type="text" placeholder="Schreib es uns kurz..." id="feedbackInput">
+            <button class="btn btn-blue" onclick="submitFeedback()">Absenden & Helfen</button>
+        </div>
+    </div>
+
+    <!-- Scroll und Modal Script -->
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            reveals.forEach(reveal => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) { reveal.classList.add('active'); }
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        const modal = document.getElementById("fakeDoorModal");
+        const planSpan = document.getElementById("planName");
+        
+        document.querySelectorAll(".open-modal").forEach(button => {
+            button.onclick = function() {
+                planSpan.innerText = this.getAttribute("data-plan");
+                modal.style.display = "flex";
+            }
+        });
+
+        function closeModal() { modal.style.display = "none"; }
+        window.onclick = function(e) { if (e.target == modal) closeModal(); }
+
+        function submitFeedback() {
+            const input = document.getElementById('feedbackInput').value;
+            if(input) {
+                alert("Danke für dein Feedback! Das wertet unsere Projektarbeit massiv auf.");
+                closeModal();
+                document.getElementById('feedbackInput').value = "";
+            } else {
+                alert("Bitte gib kurz einen Grund ein.");
+            }
+        }
+    </script>
+</body>
+</html>
